@@ -56,6 +56,8 @@ test('install-test: install dependencies and runs tests', async () => {
       'json-append': '1',
     },
     scripts: {
+      posttest: 'node -e "process.stdout.write(\'posttest\')" | json-append ./output.json',
+      pretest: 'node -e "process.stdout.write(\'pretest\')" | json-append ./output.json',
       test: 'node -e "process.stdout.write(\'test\')" | json-append ./output.json',
     },
   }, { manifestFormat: 'JSON5' })
@@ -63,7 +65,11 @@ test('install-test: install dependencies and runs tests', async () => {
   await execPnpm(['install-test'])
 
   const { default: scriptsRan } = await import(path.resolve('output.json'))
-  expect(scriptsRan).toStrictEqual(['test'])
+  expect(scriptsRan).toStrictEqual([
+    'pretest',
+    'test',
+    'posttest',
+  ])
 })
 
 test('silent run only prints the output of the child process', async () => {
